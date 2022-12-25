@@ -1,0 +1,324 @@
+# PandasAssignment
+
+Q1. How do you load a CSV file into a Pandas DataFrame?
+Answer - 
+To read csv file into Pandas DataFrame, we need to first import Pandas library and use 'read_csv' method.
+
+import pandas as pd
+df = pd.read_csv('csvfilename path/link')
+df      
+
+# now we can read 'csvfilename.csv into Pandas DataFrame
+
+Q2. How do you check the data type of a column in a Pandas DataFrame?
+Answer - 
+For checking data type of a single column, we use 'dtypes' method on dataframe object with column name.
+
+df.dtypes['columnname']
+
+# it will give data type of column 'columnname'
+
+Q3. How do you select rows from a Pandas DataFrame based on a condition?
+Answer - 
+We can just put condition on column selected in dataframe object
+
+above_25 = df[df['Age'] > 25]
+
+# it will give data of people above age of 25
+
+Q4. How do you rename columns in a Pandas DataFrame?
+Answer - 
+We can use rename() method or assign with new column names using 'columns' method
+1. -
+df.rename(columns = {'Name':'NAME'}, inplace=True)  
+# inplace=True will change it permanently
+2. -
+df.columns = ['NAME', 'AGE', 'COURSE']  
+# we will have to give all column names to change it 
+
+Q5. How do you drop columns in a Pandas DataFrame?
+Answer - 
+We use drop() method to drop columns
+
+df.drop('columnname', axis=1, inplace=True)
+df.drop(df.columns[[1]])
+# for one column
+df.drop(['columnname1', 'columnname2'], axis=1, inplace=True)
+df.drop(df.columns[[0,1,2]], axis=1, inplace=True)
+# for multiple columns
+# axis=0/1 use for specify row or column dropping
+
+Q6. How do you find the unique values in a column of a Pandas DataFrame?
+Answer - 
+The unique() method will give unique values of a column
+
+df['age'].unique()
+
+# This will give unique age values of 'age' column
+
+Q7. How do you find the number of missing values in each column of a Pandas DataFrame?
+Answer - 
+Method isnull() and sum() can be used to find and get total those missing values.
+
+df.isnull().sum()
+
+# Both methods will find and total those missing values
+
+Q8. How do you fill missing values in a Pandas DataFrame with a specific value?
+Answer - 
+We can use fillna() method to fill those missing values.
+
+df.fillna(0)
+
+# this will fill missing values with 0 (zero)
+
+Q9. How do you concatenate two Pandas DataFrames?
+Answer -
+To concatenate two DataFrames, we can use concat() method.
+
+contcat_df = pd.concat([df1, df2], axis=0)
+
+# axix=0/1 for merging on row/column  respectively
+# this will concat df1 and df2 Pandas DataFrame
+
+Q10. How do you merge two Pandas DataFrames on a specific column?
+Answer -
+The merge() function is used to merge two DataFrame on a specific column.
+
+df1 = pd.DataFrame({
+    'name':['Ansh','Amit','Vivek','Vinay','Ayush'],
+    'age':[29,30,21,34,16]
+})
+
+df2 = pd.DataFrame({
+    'name':['Ansh','Amit','Vivek','Vinay'],
+    'salary':[1000,2000,3400,2100],
+    'department':['IT','Legal','Production','Finance']
+})
+
+merge_df = pd.merge(df1, df2, on='name', how='inner')
+# it will merge df1 and df2 on column 'name' with matching elements due to 'inner' value
+
+merge_df = pd.merge(df1, df2, on='name', how='outer')
+# we can use 'outer' value of 'how' parameter to show every elements, but it will give NaN in right columns
+# For showing left or right columns values we can give 'left' or 'right' to 'how' parameter
+
+Q11. How do you group data in a Pandas DataFrame by a specific column and apply an aggregation function?
+Answer - 
+For grouping data and applying any aggregate function, we use groupby() method to group column.
+
+student = [
+        ('Ansh', 29, 'BigData'),
+        ('Satish', 30, 'DataScience'),
+        ('Amit', 31, 'DataAnlysis'),
+        ('Anubha', 28, 'BigData'),
+        ('Ritesh', 25, 'BackEndDevelopment'),
+        ('Rati', 24, 'FrontEndDevelopment'),
+        ('Ansh', 29, 'BigData'),
+        ('Shiwam', 28, 'DataScience'),
+        ('Pankaj', None, 'WebDevelopment'),
+        ('Vivek', 31, None)
+]
+df = pd.DataFrame(student, columns = ['Name', 'Age', 'Course'])
+
+course_group = df.groupby(['Course'])
+course_group.count()
+
+# it will give how many student have selected each course based on 'Course'
+
+Q12. How do you pivot a Pandas DataFrame?
+Answer - 
+The pivot() function is used to reshape DataFrame. It is based on index, columns, and values.
+
+employees = {
+    'name': ['Ansh', 'Amit', 'Satish', 'Arpita'],
+    'age': [29, 30, 31, 27],
+    'department': ['IT', 'legal', 'HR', 'Finance'],
+    'salary': [50000, 60000, 65000, 55000]
+}
+df = pd.DataFrame(employees)
+
+df.pivot(index='department', columns='name', values=['salary'])
+
+# it will reshape DataFrame 'df' and give pivot base on department, name and employees salary.
+# index will be department, columns will be name and values wil be salary of employees
+
+Q13. How do you change the data type of a column in a Pandas DataFrame?
+Answer - 
+We can use astype() method to convert a column to another data type.
+
+df['salary'] = df['salary'].astype('int64')
+
+# it will change salary data type float to int data type
+# if there is missing or null values it will not convert column,
+# we will have to fill null values first
+
+Q14. How do you sort a Pandas DataFrame by a specific column?
+Answer - 
+The sort_values() is used to sort DataFrame by a specific column.
+
+employees = {
+    'name': ['Ansh', 'Amit', 'Satish', 'Arpita'],
+    'age': [29, 30, 31, 27],
+    'department': ['IT', 'legal', 'HR', 'Finance'],
+    'salary': [50000, 60000, 65000, 55000]
+}
+
+df = pd.DataFrame(employee)
+sort = df.sort_values(by = 'age', ascending=True)
+
+# it will sort DataFrame df in ascending order based on 'age' column
+# if we give 'False' to ascending keyword it will sort in descending order
+
+Q15. How do you create a copy of a Pandas DataFrame?
+Answer - 
+We can use copy() method to create a copy of a Pandas DataFrame.
+
+new_df = df.copy()
+
+# Now new_df is copy of df
+
+Q16. How do you filter rows of a Pandas DataFrame by multiple conditions?
+Answer - 
+employee = [
+        ('Ansh', 29, 'BigData', 50000),
+        ('Satish', 30, 'DataScience', 55000),
+        ('Amit', 31, 'DataAnlysis', 45000),
+        ('Anubha', 28, 'BigData', 50000),
+        ('Ritesh', 25, 'BackEndDevelopment', 60000),
+        ('Rati', 24, 'FrontEndDevelopment', 55000),
+        ('Ansh', 29, 'BigData', 50000),
+        ('Shiwam', 28, 'DataScience', 55000),
+        ('Pankaj', None, 'WebDevelopment', 40000),
+        ('Vivek', 31, 'BigData', 50000)
+]
+df = pd.DataFrame(employee, columns = ['Name', 'Age', 'Role', 'Salary'])
+
+filt = (df['Age'] > 27) & (df['Salary'] > 50000)
+df[filt]
+
+# it will filter of employees, who are elder than 27 having more than 50000 rupee salary
+
+Q17. How do you calculate the mean of a column in a Pandas DataFrame?
+Answer - 
+We use mean() method to calculate mean of a column.
+
+mean_salary = df['Salary'].mean()
+mean_salary
+# it will give mean of salary
+mean_age = df['Age'].mean()
+mean_age
+# it will give mean of age
+
+Q18. How do you calculate the standard deviation of a column in a Pandas DataFrame?
+Answer - 
+We use std() method to find standard deviation of a column in Pandas DataFrame.
+
+std_salary = df['Salary'].std()
+std_salary
+# it will give standard deviation of salary
+std_age = df['Age'].std()
+std_age
+# it will give standard deviation of age
+
+Q19. How do you calculate the correlation between two columns in a Pandas DataFrame?
+Answer - 
+The corr() function is used to find correlation between two columns. If it gives positive (+) 
+or negative (-) relation of two columns.
+
+employee = [
+    ('Ansh', 29, 60000),
+    ('Satish', 27, 50000),
+    ('Amit', 30, 65000),
+    ('Ananya', 23, 35000),
+    ('Arpita', 25, 40000),
+    ('Rekha', 34, 70000)
+]
+df = pd.DataFrame(employee, columns=['Name', 'Age', 'Salary'])
+
+cor = df['Age'].corr(df['Salary'])
+cor
+
+# Here, there is positive correlation between 'Age' and 'Salary' column, mean if age increases salary goes up.
+
+Q20. How do you select specific columns in a DataFrame using their labels?
+Answer - 
+We can select like -
+
+df['Name']
+df[['Name', 'Age']]  for multiple column selection by labels
+
+We can use .loc function as well -
+
+df.loc[:, 'Name']
+df.loc[:,['Name','Age']]  for multiple column selection by labels
+
+Q21. How do you select specific rows in a DataFrame using their indexes?
+Answer - 
+There are two functions to get rows selected .loc and iloc(). The .loc function is used
+to select row based on label index and the .iloc function is used to select rows on the 
+basis of integer index.
+
+df.loc[['a','b','c']]   
+# it will select rows based on label a,b,c etc. index
+
+df.iloc[0:5]
+# it will select rows by select integer index in DataFrame
+
+Q22. How do you sort a DataFrame by a specific column?
+Answer - 
+The function sort_values() is used to sort DataFrame by a specific column.
+
+df.sort_values('Salary', ascending='True')
+# it will sort entire DataFrame based on 'Salary' column
+# we can sort it in descending order by giving 'False' to ascending keyword.
+
+Q23. How do you create a new column in a DataFrame based on the values of another column?
+Answer - 
+Just assign new column name with old one with some conditions or aggregation if we want.
+
+df['new_salary'] = df['Salary'] + 1000
+# 'new_salary' column will be added with 1000 rupee increment in DataFrame
+
+Q24. How do you remove duplicates from a DataFrame?
+Answer - 
+We can use drop_duplicates() function to remove duplicates from DataFrame.
+
+employee = [
+    ('Ansh', 29, 60000),
+    ('Satish', 27, 50000),
+    ('Amit', 30, 65000),
+    ('Ananya', 23, 35000),
+    ('Ansh', 29, 60000),
+    ('Arpita', 25, 40000),
+    ('Rekha', 34, 70000),
+    ('Satish', 27, 50000),
+    ('Satish', 27, 50000),
+    ('Amit', 30, 65000),
+    ('Arpita', 25, 40000),
+]
+df = pd.DataFrame(employee, columns=['Name', 'Age', 'Salary'])
+
+rd_df = df.drop_duplicates()
+rd_df
+# it will remove duplicates and give unique values from DataFrame 'df'
+
+Q25. What is the difference between .loc and .iloc in Pandas?
+Answer - 
+The basic difference between .loc and .iloc is, .loc selects columns & rows by labels, .iloc selects columns and rows by integer.
+
+employee = [
+    ('Ansh', 29, 60000),
+    ('Satish', 27, 50000),
+    ('Amit', 30, 65000),
+    ('Ananya', 23, 35000),
+    ('Arpita', 25, 40000),
+    ('Rekha', 34, 70000)
+]
+df = pd.DataFrame(employee, index=['a','b','c','d','e','f'], columns=['Name', 'Age', 'Salary'])
+
+df.iloc[0:5]
+# .iloc is selecting rows by integers
+
+df.loc[['a','b','c']]
+# .loc is selecting rows by labels a,b,c
