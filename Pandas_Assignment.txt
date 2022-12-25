@@ -322,3 +322,6 @@ df.iloc[0:5]
 
 df.loc[['a','b','c']]
 # .loc is selecting rows by labels a,b,c
+
+
+
