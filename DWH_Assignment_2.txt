@@ -1,0 +1,100 @@
+Data Warehousing Assignment -
+
+-----------------------------------------------------------------------------------------------------------------------------
+Scenario I -
+-----------------------------------------------------------------------------------------------------------------------------
+
+Question 1 - What are the strengths and weaknesses of each option?
+Answer - 
+In first option A we have to modify the instructor dimension by adding special rows representing instructor teams.
+This is complicated thing to do because, we will be adding attribute for each individual instructor like FirstName,
+LastName, Title, Department and TenuredFlag. The instuctor dimension will contain each info for one instructor,
+so we will have to change attributed in completely different manner, and the biggest disadvantage it will have to 
+not having clean and clear individual record of individual instructor, if the course instructors change we will have 
+to change dimension along with. And the other hand if we go with this design we will not have to create an other
+fact table or other thing there will be less join and addintion query.
+The second option B focuses on EnrollmentCount part to have value 0.5 for each instructor so we can combine it as 
+whole 1 for count. It will solve the previous problem of not modifying instructor dimension. But the disadvantage
+is we will have duplicate data for other instructor. We will able to know courses popularity and instructor popularity
+and other two answer as well. 
+The third option C's approach is to have two fact table one for student enrollment per courses and other for instructor,
+though the second fact table gives no unique solution to dual instructor for same course problem. It just ignores
+enrollment count for per student and course to focus on instructor. It will serve the purpose but will make complication
+for creating two fact table and using them for different purposes. It seems lengthy process albeit effective.
+
+Question 2 - Which option would you choose and why?
+Answer - 
+I will use the option B for design schema because its approach is easy effective and less lenghty. We can get total
+number of enrollment and courses, instrucstor details. I will not have to modify the instructor dimension and neither
+have to make other fact table for dual instructors of same course problem. I can get info of the course containing 
+individual instructor with the help of value 1 and get dual for courses with the help of 0.5 value. In my view it 
+serves the complete purpose and can give answer to all four question regarding popularity of courses and instructors
+with student's status (graduate or undergraduate).
+
+Question 3 - Would your answer to Question 2 be different if the majority of classes had multiple instructors? How
+about if only one or two classes had multiple instructors? (Explain your answer.)
+Answer - 
+If the majority of classes have multiple instructors then i will consider to modify in dimension with 'Manning/Raghavan'
+representation, because with second and third options the duplicate data will be almost double just with different
+0.5 value and second fact tables. By modifying dimension it will take just one fact table with single original data
+for every rows not only give clearity about records but the will decrease latency. The fact that most of courses have
+more than one instructor it will be less complicated for design instructor dimension with complexity.
+
+Question 4 - . [OPTIONAL] Can you think of another reasonable alternative design besides Options A, B, and C? If
+so, what are the advantages and disadvantages of your alternative design?
+Answer -
+ 
+
+=============================================================================================================================
+
+-----------------------------------------------------------------------------------------------------------------------------
+Scenario II -
+-----------------------------------------------------------------------------------------------------------------------------
+
+Question 5 - What are the strengths and weaknesses of each option?
+Answer - 
+The first option A is focused on dimension to overwrite the old score which is complex to do every
+three months. Because of the time period of three month to review the score we will have to overwrite 
+a lots of customers' score and there are 100,000 in customer dimension. So it is not suitable option
+to go with due to complexity and time taking task.
+The second option B is based on updating scores every time in customer dimension which will take unnecessary 
+space in memory and will make dimension lengthy. So this option is also not very fit to go with because
+of slowly changing dimesion thing and we will have to do extra task to update scores. But the benifit 
+of this type of update is that we can track the old score of the customers due to update thing and it
+can be crusial for business analysis, where can can compare past records to present records.
+The third option C's idea is to make different dimension having 45 rows of combination of scores so we
+don't need to update or overwrite customer dimension. It is best possible solution to avoid changing 
+dimension table more readable and understandable design. But it will reduce the possiblility to track
+the past record of rating through dimension.
+The fourth option D is similar of C with bit change of outrigger table with foreign key in customer dimension.
+In this way we will not have to update entire row but just foreign key. But the drawback is, it will increase
+use of join and latency as well and decrease possibility to track customers old rating becuase of just 
+key change.
+
+Question 6 - Which option would you choose and why?
+Answer - 
+Given the fact that analysitical queries base on customer acitvity and profitilbity score bound with
+certain time frame, i will consider the option A comprising concept of over writing scores so we can access
+customers rating. It is uphill task to update new row for this amount of customers data. It is better to have 
+updated rating  of customers dimension to get data in 9 category and 1 to 5 profitable rating for quering. Although,
+not all customer's rating will need to be overwritten due to their trade type diversity, for example if they have
+long term investment in any stock and that is stable. If we have to overwrite around 60% of customer rating it will
+be 60,000 and we can use the criteria coined by analytical department base on trade activity and profitability, to 
+sort the customers and overwrite the score easily.
+
+Question 7 - Would your answer to Question 6 be different if the number of customers and/or the time interval
+between score recalculations was much larger or much smaller? (Explain your answer.)
+Answer - 
+If the number of customers was smaller and time interval between score recalculations was larger so i will go with option
+C updating rows of customer with new score because the number of customers will not be much to update and time of review
+will also be larger so we will not have to face changing dimension in every three months. With option C we will able to 
+track previous customers' score which will be helpful to analyse the data.
+
+Question 8 -  [OPTIONAL] Can you think of another reasonable alternative design besides Options A, B, C, and D?
+If so, what are the advantages and disadvantages of your alternative design?
+Answer - 
+We can get customers' score without given in Customer dimension or separate CustomerScore dimension base on their 
+performance within a particular time period. We just have to apply certain condition to data to sort them and then 
+we can do grouping and all analytical operation. Certainly it will take more sql queries to get the intended data with 
+scores, but it will reduce extra effort to update and change the dimension in every three months. 
+So if we consider and ready to do extra query we can consider to ommit the rating attribute from Customer dimension.
