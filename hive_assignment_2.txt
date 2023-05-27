@@ -1,0 +1,218 @@
+Scenario Based Questions:
+
+1 - Will the reducer work or not if you use “Limit 1” in any HiveQL query?
+Answer - 
+If we use just "Limit 1" to show data it will not use reducer, because there is no calculation 
+involve on any data to calculate anything. It is just limiting rows to show data no reducer required unless
+there is aggregation process.
+
+2 - Suppose I have installed Apache Hive on top of my Hadoop cluster using default metastore configuration.
+Then, what will happen if we have multiple clients trying to access Hive at the same time? 
+Answer - 
+Hive uses built-in Derby metastore in default mode, and it allows only single process storage and 
+only one person can access it at a time. Only one user client can access hive metastore when it is using 
+default Derby database.
+
+3 - Suppose, I create a table that contains details of all the transactions done by the customers:
+CREATE TABLE transaction_details (cust_id INT, amount FLOAT, month STRING, country STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ‘,’ ;
+Now, after inserting 50,000 records in this table, I want to know the total revenue generated for each month. But, Hive is taking too much time in processing this query.
+How will you solve this problem and list the steps that I will be taking in order to do so?
+Answer - 
+We can grouping of months and sum the amount on the basis of it.
+SELECT sum(amount) AS total_amount, month FROM transaction_details GROUP BY month;
+
+4 - How can you add a new partition for the month December in the above partitioned table?
+Answer - 
+We can further do partitioning on basis of country, like first partition by month and then country.
+creating table -
+create table transaction_part
+	(
+	cust_id int,
+	amount float
+	)
+	partitioned by (month string, country string);
+
+In static way -
+insert overwrite table transaction_part partition(month = '2', country='USA') select cust_id, amount
+from transaction_details where month = '2' and country = 'USA';
+
+In dynamic way - 
+insert overwrite table transaction_part partition(month, country) select cust_id, amount from 
+transaction_details;
+
+Above in both partitioning we partitioned month further into country.
+
+5 - I am inserting data into a table based on partitions dynamically. But, I received an error – 
+FAILED ERROR IN SEMANTIC ANALYSIS: Dynamic partition strict mode requires at least one static partition column.
+How will you remove this error?
+Answer - 
+Hive does not allow direct dynamic parititioning to any table to prevent accidental paritiioning or misuse of 
+data, so it stricts user to not partition dynamically. At least on static partition is required to do so, but 
+we can set hive to nonstrict mode in order to let hive partition table by using syntext -
+set hive.exec.dynamic.partition.mode=nonstrict;
+now we can parition table without error.
+
+6 - Suppose, I have a CSV file – ‘sample.csv’ present in ‘/temp’ directory with the following entries:
+id first_name last_name email gender ip_address
+How will you consume this CSV file into the Hive warehouse using built-in SerDe?
+Answer - 
+First create internal table for 'sample.csv' - 
+create table sample_internal_csv
+	(
+	id int,
+	first_name string,
+	last_name string,
+	email string,
+	gender string,
+	id_address string
+	)
+	row format delimited
+	fields terminated by ",";
+
+'row format delimited' will use in-built library for csv file.
+Now we will load data from hadoop file system '/temp'-
+load data inpath "/temp/sample.csv" into table sample_internal_csv;
+
+The data has been loaded using in-built serde library and we can access it.
+
+7 - Suppose, I have a lot of small CSV files present in the input directory in HDFS and I want to create a single Hive table corresponding to these files. 
+The data in these files are in the format: {id, name, e-mail, country}. Now, as we know, Hadoop performance degrades when we use lots of small files.
+So, how will you solve this problem where we want to create a single Hive table for lots of small files without degrading the performance of the system?
+Answer - 
+In this case when we have alot of files and we need to access them automatically through table, we can use
+external table, that way we don't need to load data every time when we have new data in input directory.
+First create external table -
+create external table small_csv
+	(
+	id int,
+	name string,
+	e_mail string,
+	country string
+	)
+	row format delimited
+	fields terminated by ","
+	location "/input/";
+
+We don't need to add file name otherwise it will not load other files directly and whole purpose will be
+useless.
+Now we can access all those file in single short.
+
+8 - LOAD DATA LOCAL INPATH ‘Home/country/state/’
+OVERWRITE INTO TABLE address;
+Answer - 
+The path is not correct, the path is local but we have given it hadoop file king path.
+The correct path is - LOAD DATA LOCAL INPATH "file:///Home/coutry/state/filename" INTO TABLE tablename;
+
+9 - Is it possible to add 100 nodes when we already have 100 nodes in Hive? If yes, how?
+Answer - 
+
+
+
+
+
+
+
+
+Download a data from the given location - 
+https://archive.ics.uci.edu/ml/machine-learning-databases/00360/
+
+1. Create a hive table as per given schema in your dataset
+
+create table air_quality_uci
+(
+sample_date string,
+sample_time string,
+CO_GT array<int>,
+PT08_S1_CO int,
+NMHC_GT int,
+C6H6_GT array<int>,
+PT08_S2_NMHC int,
+NOX_GT int,
+PT08_S3_NOX int,
+NO2_GT int,
+PT08_S4_NO2 int,
+PT08_S5_O3 int,
+T array<int>,
+RH array<int>,
+AH array<int>
+)
+row format delimited
+fields terminated by ";"
+collection items terminated by ","
+tblproperties ("skip.header.line.count"="1");
+
+2. try to place a data into table location
+load data inpath "/all_data/AirQualityUCI.csv" into table air_quality_uci;
+
+3. Perform a select operation . 
+select * from air_quality_uci limit 20;
+
+4. Fetch the result of the select operation in your local as a csv file . 
+insert overwrite local directory "/config/workspace" row format delimited
+fields terminated by ";"
+collection items terminated by ","
+select * from air_quality_uci;
+
+5. Perform group by operation . 
+select sample_date, avg(t[0]) from air_quality_uci group by sample_date;
+(Highest average temperature by date)
+
+7. Perform filter operation at least 5 kinds of filter examples .
+   1 - Data of corbon concentration of 10/03/2004
+       select co_gt, sample_date from air_quality_uci where sample_date = "10/03/2004";
+   2 - Data of average low temperature between 10/03/2004 and 12/o3/2004
+       select avg(t[1]) as avg_temperature from air_quality_uci where sample_date between "10/03/2004" and "12/03/2004";
+   3 - Data of temperature where higher than 10 and lower than 7
+       select t, sample_date, sample_time from air_quality_uci where t[0] > 10 and t[1] < 7;
+   4 - Data of AH(absolute humidity) bigger than 1 and lower than 7000
+       select ah, sample_date, sample_time from air_quality_uci where ah[0] > 1 and ah[1] < 7000;
+   5 - Data of dates when average of temperature is higher than 30 (based on addition of highes and lowest)
+       select sample_date, t from air_quality_uci where t[0]+t[1]/2 > 30;
+ 
+8. show and example of regex operation
+select sample_date, regexp_extract(sample_date, "/2004.*",0) from air_quality_uci limit 20;
+select sample_date, regexp_extract(sample_time, "01..*",0) from air_quality_uci limit 20;
+
+9. alter table operation 
+Renaming name -
+alter table air_quality_uci RENAME TO air_quality_csv;
+Changin column name -
+alter table air_quality_uci CHANGE co_gt carbon_gt array<int>;
+
+10 . drop table operation
+drop table IF EXISTS air_quality_uci;
+
+12 . order by operation . 
+Order by based on co_gt highest value in descending order - 
+select sample_date, co_gt from air_quality_uci ORDER BY co_gt[0] desc;
+
+13 . where clause operations you have to perform . 
+select sample_date, sample_time, co_gt from air_quality_uci WHERE co_gt[0] == 9;
+
+14 . sorting operation you have to perform .
+Sorted by based on co_gt in ascending order -  
+select sample_date, sample_time, co_gt from air_quality_uci SORT BY co_gt[1];
+
+15 . distinct operation you have to perform . 
+select DISTINCT sample_date from air_quality_uci;
+
+16 . like an operation you have to perform .
+select sample_date, sample_time from air_quality_uci WHERE sample_time LIKE ("%00");
+ 
+17 . union operation you have to perform . 
+select * from air_quality_uci
+UNION
+select * from air_quality_csv;
+
+select * from air_quality_uci
+UNION DISTINCT
+select * from air_quality_csv;
+
+select sample_date from air_quality_uci
+UNION DISTINCT
+select sample_date from air_quality_csv;
+
+18 . table view operation you have to perform . 
+create VIEW IF NOT EXISTS air_q_four_col (sam_date, sam_time, co_gt, t) 
+AS select sample_date, sample_time, co_gt, t from air_quality_uci;
+

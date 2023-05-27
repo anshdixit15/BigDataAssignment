@@ -1,0 +1,119 @@
+hive_assignment_1
+
+1 - Storing raw data into hdfs location -
+
+hdfs dfs -put sales_order_data.csv /input_data
+
+2 - Creating table 'sales_order_csv' 
+
+create table sales_order_csv 
+   (
+   order_number int,
+   quantity_ordered int,
+   price_each float, 
+   order_line_number int,
+   sales float,
+   status string,
+   qtr_id int,
+   month_id int,
+   year_id int,
+   product_line string,
+   msrp int,
+   product_code string,
+   phone int,
+   city string,
+   state string,
+   postal_code int,
+   country string,
+   territory string,
+   contact_last_name string,
+   contact_first_name string,
+   deal_size string
+   )
+   row format delimited
+   fields terminated by ","
+   tblproperties("skip.header.line.count"="1");
+
+3 - Loading data of sales_order_data.csv file from hdfs location into hive table 'sales_order_csv'
+
+load data inpath "/input_data/sales_order_data.csv" into table sales_order_csv;
+
+4 - Creating an internal hive table 'sales_order_orc' in ORC format.
+
+create table sales_order_orc
+    (
+    order_number int,
+    quantity_ordered int,
+    price_each float,
+    order_line_number int,
+    sales float,
+    status string,
+    qtr_id int,
+    month_id int,
+    year_id int,
+    product_line string,
+    msrp int,
+    product_code string,
+    phone int,
+    city string,
+    state string,
+    postal_code int,
+    country string,
+    territory string,
+    contact_last_name string,
+    contact_first_name string,
+    deal_size string
+    )
+    stored as orc;
+
+5- Loading data from 'sales_order_csv' table into 'sales_order_orc' table.
+
+from sales_order_csv insert overwrite table sales_order_orc select *;
+
+6 - Performing below mentioned queries on 'sales_order_orc' table.
+
+a. Calculate total sales per year
+
+Query - SELECT year_id AS year, SUM(sales) AS total_sales FROM sales_order_orc GROUP BY year_id;
+
+b. Find a product for which maximum orders were placed
+
+Query - SELECT product, total_order AS max_order FROM (SELECT product_line AS product, SUM(quantity_ordered) AS total_order FROM sales_order_orc GROUP BY product_line) AS x 
+	ORDER BY max_order DESC LIMIT 1;
+
+c. Calculate the total sales for each quarter
+
+Query - SELECT qtr_id AS quarter, SUM(sales) AS total_sales FROM sales_order_orc GROUP BY qtr_id;
+
+d. In which quarter sales was minimum
+
+Query - SELECT quarter, total_sales AS min_sales FROM (SELECT qtr_id AS quarter, SUM(sales) AS total_sales FROM sales_order_orc GROUP BY qtr_id) AS x 
+	ORDER BY min_sales LIMIT 1;
+
+e. In which country sales was maximum and in which country sales was minimum
+
+Query - country with maximum sales
+	SELECT country, total_sales AS max_sales FROM (SELECT country, SUM(sales) AS total_sales FROM sales_order_orc GROUP BY country) AS x 
+	ORDER BY max_sales DESC LIMIT 1;
+	
+	country with minimum sales
+	SELECT country, total_sales AS min_sales FROM (SELECT country, SUM(sales) AS total_sales FROM sales_order_orc GROUP BY country) AS x 
+	ORDER BY min_sales LIMIT 1;	
+
+f. Calculate quartelry sales for each city
+
+Query - SELECT city, quarter, total_sales FROM (SELECT city, qtr_id AS quarter, SUM(sales) as total_sales FROM sales_order_orc GROUP BY city, qtr_id) AS x 
+	ORDER BY city;
+
+h. Find a month for each year in which maximum number of quantities were sold
+
+SELECT DISTINCT * FROM (
+SELECT raw.year_id, raw.month_id, raw.total_quantity_sale FROM (SELECT year_id, month_id, SUM(quantity_ordered) as total_quantity_sale FROM sales_order_orc GROUP BY year_id, month_id
+) AS raw
+INNER JOIN (SELECT year_id, month_id, MAX(total_quantity_sale) OVER (PARTITION BY year_id) AS max_quantity_sale FROM (SELECT year_id, month_id, SUM(quantity_ordered) as total_quantity_sale FROM sales_order_orc GROUP BY year_id, month_id) AS x
+) AS temp
+ON raw.total_quantity_sale = temp.max_quantity_sale) AS complete_solution;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
